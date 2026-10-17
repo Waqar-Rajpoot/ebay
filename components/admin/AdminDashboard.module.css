@@ -60,6 +60,42 @@
   transition: transform 0.2s ease;
 }
 
+/* Header actions group */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Secondary header action (e.g. Access codes) */
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--admin-border);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: var(--admin-surface);
+  color: var(--admin-text);
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.secondaryButton:hover,
+.secondaryButton:focus-visible {
+  transform: translateY(-2px);
+  background-color: var(--admin-accent-soft);
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  outline: none;
+}
+
 /* Table card */
 .card {
   background-color: var(--admin-surface);
@@ -227,6 +263,7 @@
   }
 
   .uploadButton,
+  .secondaryButton,
   .uploadIcon,
   .row,
   .fileIcon,

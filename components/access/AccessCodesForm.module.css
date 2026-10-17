@@ -1,0 +1,255 @@
+/* Same palette as AdminDashboard.module.css. Change these variables to re-theme. */
+.form {
+  --form-surface: #ffffff;
+  --form-text: #1e1b4b;
+  --form-muted: #5b5f8a;
+  --form-border: #d5daf7;
+  --form-accent: #4f46e5;
+  --form-accent-soft: #e0e3ff;
+  --form-on-accent: #ffffff;
+  --form-danger: #dc2626;
+  --form-danger-soft: #fef2f2;
+
+  width: 100%;
+  max-width: 36rem;
+  overflow: hidden;
+  background-color: var(--form-surface);
+  color: var(--form-text);
+  border: 1px solid var(--form-border);
+  border-radius: 1rem;
+}
+
+:global(.dark) .form {
+  --form-surface: #1e2250;
+  --form-text: #eef0ff;
+  --form-muted: #a3a8d6;
+  --form-border: #333a7a;
+  --form-accent: #818cf8;
+  --form-accent-soft: #2c3270;
+  --form-on-accent: #14173a;
+  --form-danger: #f87171;
+  --form-danger-soft: #3b1d2e;
+}
+
+/* Sections */
+.section {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.section + .section {
+  border-top: 1px solid var(--form-border);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sectionText {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--form-muted);
+}
+
+/* Fields */
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.fieldIcon {
+  position: absolute;
+  top: 50%;
+  left: 0.875rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  transform: translateY(-50%);
+  color: var(--form-muted);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 2.75rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--form-text);
+  background-color: var(--form-surface);
+  border: 1px solid var(--form-border);
+  border-radius: 0.625rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:hover {
+  border-color: var(--form-accent);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--form-accent);
+  box-shadow: 0 0 0 3px var(--form-accent-soft);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--form-danger);
+}
+
+.input[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 3px var(--form-danger-soft);
+}
+
+.toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  transform: translateY(-50%);
+  color: var(--form-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.toggle:hover,
+.toggle:focus-visible {
+  background-color: var(--form-accent-soft);
+  color: var(--form-accent);
+  outline: none;
+}
+
+.toggleIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.hint,
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.hint {
+  color: var(--form-muted);
+}
+
+.error {
+  color: var(--form-danger);
+  font-weight: 500;
+}
+
+/* Footer */
+.footer {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background-color: var(--form-accent-soft);
+  border-top: 1px solid var(--form-border);
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--form-muted);
+}
+
+.noticeIcon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.125rem;
+  color: var(--form-accent);
+}
+
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.7rem 1.25rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--form-on-accent);
+  background-color: var(--form-accent);
+  border: 0;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.submit:hover:not(:disabled),
+.submit:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -10px var(--form-accent);
+  outline: none;
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+@media (min-width: 640px) {
+  .footer {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .submit {
+    width: auto;
+    min-width: 9rem;
+  }
+}
+
+.spinner {
+  width: 1.125rem;
+  height: 1.125rem;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .toggle,
+  .submit {
+    transition: none;
+  }
+
+  .submit:hover:not(:disabled),
+  .submit:focus-visible {
+    transform: none;
+  }
+
+  .spinner {
+    animation-duration: 2s;
+  }
+}

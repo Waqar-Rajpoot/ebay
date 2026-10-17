@@ -1,0 +1,317 @@
+=== BRANCH / STATUS ===
+main
+?? project-summary-portal.txt
+
+=== COMMITS ===
+1984d37 feat: add functionality for reading JSON and Excel sheet uploads
+2749e35 feat: add eBay connected and declined pages with corresponding views and privacy policy
+e79dd9d feat: implement eBay order synchronization and related components
+7e06a12 feat: integrate better-auth for authentication and authorization
+ad78c53 feat: add Sonner toaster component for notifications
+d2da30a first commit
+
+=== FILE TREE ===
+.gitignore
+AGENTS.md
+CLAUDE.md
+README.md
+app/admin/batches/[batchId]/page.tsx
+app/admin/page.tsx
+app/admin/upload/page.tsx
+app/api/access/route.ts
+app/api/batches/[batchId]/columns/[columnKey]/route.ts
+app/api/batches/[batchId]/columns/route.ts
+app/api/batches/[batchId]/export/route.ts
+app/api/batches/[batchId]/route.ts
+app/api/batches/preview/route.ts
+app/api/batches/route.ts
+app/api/team/rows/[rowId]/route.ts
+app/error.tsx
+app/globals.css
+app/layout.tsx
+app/loading.tsx
+app/not-found.tsx
+app/page.tsx
+app/team/[batchId]/page.tsx
+app/team/page.tsx
+components.json
+components/access/AccessCodeForm.tsx
+components/access/RoleGate.tsx
+components/access/SignOutButton.tsx
+components/admin/AdminBatchDetail.tsx
+components/admin/AdminDashboard.module.css
+components/admin/AdminDashboard.tsx
+components/admin/DeleteBatchButton.tsx
+components/admin/ExportButton.tsx
+components/columns/ColumnManager.tsx
+components/home/HomeView.module.css
+components/home/HomeView.tsx
+components/shared/PageHeader.tsx
+components/team/EditableCell.tsx
+components/team/OrderFilters.tsx
+components/team/OrdersEditableGrid.tsx
+components/team/SummaryBar.tsx
+components/team/TeamBatchGrid.tsx
+components/team/TeamBatchList.tsx
+components/team/useEditorName.ts
+components/ui/alert-dialog.tsx
+components/ui/alert.tsx
+components/ui/badge.tsx
+components/ui/button.tsx
+components/ui/card.tsx
+components/ui/checkbox.tsx
+components/ui/input.tsx
+components/ui/label.tsx
+components/ui/select.tsx
+components/ui/skeleton.tsx
+components/ui/sonner.tsx
+components/ui/table.tsx
+components/upload/UploadView.tsx
+eslint.config.mjs
+lib/access/accessConstants.ts
+lib/access/accessRoles.ts
+lib/access/accessSession.ts
+lib/access/rateLimit.ts
+lib/config.ts
+lib/constants.ts
+lib/db/mongoose.ts
+lib/errors/appErrors.ts
+lib/errors/errorResponse.ts
+lib/excel/buildOrdersWorkbook.ts
+lib/excel/headerMatching.test.ts
+lib/excel/headerMatching.ts
+lib/excel/readOrdersWorkbook.ts
+lib/http/apiClient.ts
+lib/http/readJsonBody.ts
+lib/http/readSheetUpload.ts
+lib/orders/batchQueries.ts
+lib/orders/batchService.ts
+lib/orders/calculatedColumns.test.ts
+lib/orders/calculatedColumns.ts
+lib/orders/cellValues.ts
+lib/orders/columnDefinitions.ts
+lib/orders/formatters.ts
+lib/orders/importBatchModel.ts
+lib/orders/money.test.ts
+lib/orders/money.ts
+lib/orders/orderConstants.ts
+lib/orders/orderFilters.ts
+lib/orders/orderMetrics.ts
+lib/orders/orderRowModel.ts
+lib/orders/orderTypes.ts
+lib/orders/rowService.ts
+lib/utils.ts
+lib/validation/schemas.ts
+next.config.ts
+package.json
+postcss.config.mjs
+project-summary.txt
+tsconfig.json
+vitest.config.ts
+
+=== ENV VARIABLE NAMES (values hidden) ===
+--- .env
+MONGODB_URI=<hidden>
+MONGODB_DB_NAME=<hidden>
+MAX_POOL_SIZE=<hidden>
+SERVER_SELECTION_TIMEOUT_MS=<hidden>
+
+MAX_UPLOAD_MEGABYTES=<hidden>
+MAX_UPLOAD_ROWS=<hidden>
+
+ADMIN_ACCESS_CODE=<hidden>
+TEAM_ACCESS_CODE=<hidden>
+SESSION_SECRET=<hidden>
+
+=== KEY FILES ===
+
+----- lib/config.ts
+import "server-only";
+import { z } from "zod";
+
+export const BYTES_PER_MEGABYTE = 1024 * 1024;
+const DEFAULT_MAX_UPLOAD_MEGABYTES = 4;
+const DEFAULT_MAX_UPLOAD_ROWS = 10_000;
+const MINIMUM_ACCESS_CODE_LENGTH = 8;
+const MINIMUM_SESSION_SECRET_LENGTH = 32;
+
+/**
+ * Validates environment variables against a schema.
+ * On failure it names the bad variables but never prints their values.
+ */
+function readEnvironment<Schema extends z.ZodType>(schema: Schema): z.output<Schema> {
+  const result = schema.safeParse(process.env);
+  if (!result.success) {
+    const variableNames = new Set(result.error.issues.map((issue) => issue.path.map(String).join(".")));
+    throw new Error(`Invalid or missing environment variables: ${[...variableNames].join(", ")}`);
+  }
+  return result.data;
+}
+
+const uploadLimitsSchema = z.object({
+  MAX_UPLOAD_MEGABYTES: z.coerce.number().positive().default(DEFAULT_MAX_UPLOAD_MEGABYTES),
+  MAX_UPLOAD_ROWS: z.coerce.number().int().positive().default(DEFAULT_MAX_UPLOAD_ROWS),
+});
+
+export interface UploadLimits {
+  maxFileBytes: number;
+  maxRows: number;
+}
+
+let cachedUploadLimits: UploadLimits | null = null;
+
+/** Limits for uploaded sheets. Optional in .env; falls back to safe defaults. */
+export function getUploadLimits(): UploadLimits {
+  if (!cachedUploadLimits) {
+    const env = readEnvironment(uploadLimitsSchema);
+    cachedUploadLimits = {
+      maxFileBytes: env.MAX_UPLOAD_MEGABYTES * BYTES_PER_MEGABYTE,
+      maxRows: env.MAX_UPLOAD_ROWS,
+    };
+  }
+  return cachedUploadLimits;
+}
+
+const accessConfigSchema = z
+  .object({
+    ADMIN_ACCESS_CODE: z.string().min(MINIMUM_ACCESS_CODE_LENGTH),
+    TEAM_ACCESS_CODE: z.string().min(MINIMUM_ACCESS_CODE_LENGTH),
+    SESSION_SECRET: z.string().min(MINIMUM_SESSION_SECRET_LENGTH),
+  })
+  .refine((env) => env.ADMIN_ACCESS_CODE !== env.TEAM_ACCESS_CODE, {
+    path: ["TEAM_ACCESS_CODE"],
+    message: "must differ from ADMIN_ACCESS_CODE",
+  });
+
+export interface AccessConfig {
+  adminCode: string;
+  teamCode: string;
+  sessionSecret: string;
+}
+
+let cachedAccessConfig: AccessConfig | null = null;
+
+/** The two shared access codes and the secret that signs the login cookie. */
+export function getAccessConfig(): AccessConfig {
+  if (!cachedAccessConfig) {
+    const env = readEnvironment(accessConfigSchema);
+    cachedAccessConfig = {
+      adminCode: env.ADMIN_ACCESS_CODE,
+      teamCode: env.TEAM_ACCESS_CODE,
+      sessionSecret: env.SESSION_SECRET,
+    };
+  }
+  return cachedAccessConfig;
+}
+----- vitest.config.ts
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  resolve: { alias: { "@": fileURLToPath(new URL(".", import.meta.url)) } },
+  test: { include: ["lib/**/*.test.ts"] },
+});
+----- components.json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "rtl": false,
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "registries": {}
+}
+
+----- app/layout.tsx
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
+import "./globals.css";
+
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
+  description: APP_DESCRIPTION,
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
+        <Toaster richColors position="top-right" />
+      </body>
+    </html>
+  );
+}
+----- app/page.tsx
+import HomeView from "@/components/home/HomeView";
+
+export default function HomePage() {
+  return <HomeView />;
+}
+----- .gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+=== BETTER-AUTH / OLD CODE STILL USED? ===
+./tsconfig.tsbuildinfo
+./package.json
