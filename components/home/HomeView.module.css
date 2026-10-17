@@ -1,0 +1,155 @@
+/* Palette lives here. Change these variables to re-theme the page. */
+.page {
+  --home-bg: #eef1ff;
+  --home-surface: #ffffff;
+  --home-text: #1e1b4b;
+  --home-muted: #5b5f8a;
+  --home-border: #d5daf7;
+  --home-admin: #4f46e5;
+  --home-admin-soft: #e0e3ff;
+  --home-team: #0d9488;
+  --home-team-soft: #d5f3ef;
+
+  background-color: var(--home-bg);
+  color: var(--home-text);
+}
+
+/* Dark mode: deep indigo instead of black. */
+:global(.dark) .page {
+  --home-bg: #14173a;
+  --home-surface: #1e2250;
+  --home-text: #eef0ff;
+  --home-muted: #a3a8d6;
+  --home-border: #333a7a;
+  --home-admin: #818cf8;
+  --home-admin-soft: #2c3270;
+  --home-team: #2dd4bf;
+  --home-team-soft: #1b4552;
+}
+
+.fadeUp {
+  opacity: 0;
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.badgeDot {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.card {
+  background-color: var(--home-surface);
+  border: 1px solid var(--home-border);
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-6px);
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: 0 18px 40px -18px var(--accent);
+}
+
+.admin {
+  --accent: var(--home-admin);
+  --accent-soft: var(--home-admin-soft);
+}
+
+.team {
+  --accent: var(--home-team);
+  --accent-soft: var(--home-team-soft);
+}
+
+/* Flat accent bar that slides in along the top edge on hover. */
+.bar {
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .bar,
+.card:focus-visible .bar {
+  transform: scaleX(1);
+}
+
+.iconBox {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.card:hover .iconBox,
+.card:focus-visible .iconBox {
+  background-color: var(--accent);
+  color: var(--home-surface);
+  transform: scale(1.1) rotate(-4deg);
+}
+
+.chip {
+  border: 1px solid var(--home-border);
+  color: var(--home-muted);
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.card:hover .chip {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.action {
+  color: var(--accent);
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.card:hover .arrow {
+  transform: translateX(6px);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeUp,
+  .badgeDot {
+    animation: none;
+    opacity: 1;
+  }
+
+  .card,
+  .iconBox,
+  .arrow,
+  .bar {
+    transition: none;
+  }
+}

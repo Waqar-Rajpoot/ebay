@@ -1,0 +1,238 @@
+/* Same palette as the home page. Change these variables to re-theme. */
+.page {
+  --admin-bg: #eef1ff;
+  --admin-surface: #ffffff;
+  --admin-text: #1e1b4b;
+  --admin-muted: #5b5f8a;
+  --admin-border: #d5daf7;
+  --admin-accent: #4f46e5;
+  --admin-accent-soft: #e0e3ff;
+  --admin-head: #f4f6ff;
+  --admin-on-accent: #ffffff;
+
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+:global(.dark) .page {
+  --admin-bg: #14173a;
+  --admin-surface: #1e2250;
+  --admin-text: #eef0ff;
+  --admin-muted: #a3a8d6;
+  --admin-border: #333a7a;
+  --admin-accent: #818cf8;
+  --admin-accent-soft: #2c3270;
+  --admin-head: #252a60;
+  --admin-on-accent: #14173a;
+}
+
+.fadeUp {
+  opacity: 0;
+  animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Header action */
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: var(--admin-accent);
+  color: var(--admin-on-accent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.uploadButton:hover,
+.uploadButton:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -10px var(--admin-accent);
+  outline: none;
+}
+
+.uploadButton:hover .uploadIcon {
+  transform: translateY(-2px);
+}
+
+.uploadIcon {
+  transition: transform 0.2s ease;
+}
+
+/* Table card */
+.card {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.countPill {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: var(--admin-accent-soft);
+  color: var(--admin-accent);
+}
+
+.tableHead {
+  background-color: var(--admin-head);
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.row {
+  border-color: var(--admin-border);
+  transition: background-color 0.2s ease;
+}
+
+.row:hover {
+  background-color: var(--admin-accent-soft);
+}
+
+.fileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background-color: var(--admin-accent-soft);
+  color: var(--admin-accent);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.row:hover .fileIcon {
+  background-color: var(--admin-accent);
+  color: var(--admin-on-accent);
+  transform: rotate(-4deg) scale(1.05);
+}
+
+.rowsBadge {
+  display: inline-block;
+  min-width: 2.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--admin-border);
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--admin-muted);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.row:hover .rowsBadge {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+}
+
+.openLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--admin-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.openLink:hover,
+.openLink:focus-visible {
+  background-color: var(--admin-accent);
+  border-color: var(--admin-accent);
+  color: var(--admin-on-accent);
+  outline: none;
+}
+
+.arrow {
+  transition: transform 0.2s ease;
+}
+
+.openLink:hover .arrow,
+.openLink:focus-visible .arrow {
+  transform: translateX(4px);
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  border: 2px dashed var(--admin-border);
+  border-radius: 1rem;
+  background-color: var(--admin-surface);
+}
+
+.emptyIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  background-color: var(--admin-accent-soft);
+  color: var(--admin-accent);
+  animation: bob 3s ease-in-out infinite;
+}
+
+.muted {
+  color: var(--admin-muted);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeUp,
+  .emptyIcon {
+    animation: none;
+    opacity: 1;
+  }
+
+  .uploadButton,
+  .uploadIcon,
+  .row,
+  .fileIcon,
+  .rowsBadge,
+  .openLink,
+  .arrow {
+    transition: none;
+  }
+}

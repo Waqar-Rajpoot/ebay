@@ -1,61 +1,75 @@
-/** An amount in the smallest currency unit (for example cents) plus its currency code. */
-export interface Money {
-  amountMinor: number;
-  currency: string;
+import type { CALCULATION_OPERATIONS, COLUMN_KINDS, COLUMN_TYPES } from "./orderConstants";
+
+export type ColumnType = (typeof COLUMN_TYPES)[number];
+export type ColumnKind = (typeof COLUMN_KINDS)[number];
+export type CalculationOperation = (typeof CALCULATION_OPERATIONS)[number];
+
+/** A cell copied from the uploaded sheet. */
+export type SourceCellValue = string | number | boolean | null;
+
+/** A cell in an added column. Money is whole minor units (cents); null means empty. */
+export type AddedCellValue = string | number | null;
+
+export interface CalculationFormula {
+  operation: CalculationOperation;
+  leftKey: string;
+  rightKey: string;
+  /** When true, a negative result is shown as 0 (used for Profit and Loss). */
+  floorAtZero: boolean;
 }
 
-export interface ShippingAddress {
-  fullName: string | null;
-  phone: string | null;
-  addressLine1: string | null;
-  addressLine2: string | null;
-  city: string | null;
-  stateOrProvince: string | null;
-  postalCode: string | null;
-  countryCode: string | null;
+export interface ColumnDefinition {
+  key: string;
+  label: string;
+  type: ColumnType;
+  kind: ColumnKind;
+  formula: CalculationFormula | null;
 }
 
-export interface OrderItem {
-  ebayLineItemId: string;
-  ebayItemId: string | null;
-  title: string;
-  sku: string | null;
-  quantity: number;
-  /** Line price as reported by eBay. Verify against a real order whether it includes quantity. */
-  lineItemCost: Money;
-  itemUrl: string | null;
+export interface BatchSummary {
+  id: string;
+  name: string;
+  originalFileName: string;
+  rowCount: number;
+  createdAt: string;
 }
 
-export interface OrderTotals {
-  subtotal: Money | null;
-  shipping: Money | null;
-  tax: Money | null;
-  discount: Money | null;
-  total: Money;
-  ebayFees: Money | null;
+export interface BatchDetails extends BatchSummary {
+  /** Header texts from the uploaded sheet, in sheet order. */
+  columns: string[];
+  keyColumn: string;
+  addedColumns: ColumnDefinition[];
 }
 
-/** Fields that come from eBay and are overwritten on every sync. */
-export interface OrderRecord {
-  ebayOrderId: string;
-  ebayEnvironment: "sandbox" | "production";
-  fulfillmentStatus: string;
-  paymentStatus: string;
-  placedAt: Date;
-  ebayLastModifiedAt: Date;
-  buyerUsername: string | null;
-  shippingAddress: ShippingAddress | null;
-  items: OrderItem[];
-  totals: OrderTotals;
-  rawPayload: Record<string, unknown>;
+export interface OrderRowDto {
+  id: string;
+  rowNumber: number;
+  rowKey: string;
+  /** Aligned with BatchDetails.columns. */
+  sourceValues: SourceCellValue[];
+  addedValues: Record<string, AddedCellValue>;
+  lastEditedBy: string | null;
+  lastEditedAt: string | null;
 }
 
-/** Fields entered by the owner. A sync must never overwrite these. null means "not entered yet". */
-export interface OrderCosts {
-  itemCostMinor: number | null;
-  shippingCostMinor: number | null;
-  otherCostsMinor: number | null;
-  notes: string;
+export interface SheetPreview {
+  fileName: string;
+  sheetName: string;
+  headers: string[];
+  previewRows: SourceCellValue[][];
+  totalRows: number;
+  suggestedKeyColumn: string;
+  warnings: string[];
 }
 
-export type OrderDocument = OrderRecord & OrderCosts;
+export interface SkippedRow {
+  rowNumber: number;
+  reason: string;
+}
+
+export interface ImportResult {
+  batchId: string;
+  imported: number;
+  skippedCount: number;
+  skipped: SkippedRow[];
+}

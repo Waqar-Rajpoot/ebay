@@ -1,9 +1,5 @@
-import React from 'react'
+import HomeView from "@/components/home/HomeView";
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
+export default function HomePage() {
+  return <HomeView />;
 }
-
-export default page
